@@ -1,0 +1,24 @@
+.badge.bg-purple {
+    background-color: #6f42c1 !important;
+    color: white;
+}
+
+.badge.bg-orange {
+    background-color: #fd7e14 !important;
+    color: white;
+}
+
+.badge.bg-cyan {
+    background-color: #17a2b8 !important;
+    color: white;
+}
+
+.badge.bg-pink {
+    background-color: #e83e8c !important;
+    color: white;
+}
+
+.badge.bg-nature {
+    background-color: #00ff37 !important;
+    color: white;
+}

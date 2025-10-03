@@ -1,0 +1,310 @@
+<!-- templates/analytics/dashboard.html -->
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard Analytics - Pariwisata Bogor{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_places }}</h4>
+                            <p class="mb-0">Total Tempat</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_categories }}</h4>
+                            <p class="mb-0">Kategori</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tags fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_visits_today }}</h4>
+                            <p class="mb-0">Kunjungan Hari Ini</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-eye fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_visits_month }}</h4>
+                            <p class="mb-0">Kunjungan Bulan Ini</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Distribusi Tempat per Kategori</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Top 10 Tempat Populer</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topPlacesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Tren Kunjungan Bulanan</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyVisitsChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-star"></i> Distribusi Rating</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ratingChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-analytics"></i> Analytics Pengunjung (30 Hari Terakhir)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="visitorAnalyticsChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-download"></i> Export Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary"
+                                onclick="exportChart('categoryChart', 'category-distribution')">
+                                <i class="fas fa-download"></i> Export Category Chart
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success"
+                                onclick="exportChart('topPlacesChart', 'top-places')">
+                                <i class="fas fa-download"></i> Export Top Places
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info"
+                                onclick="exportChart('monthlyVisitsChart', 'monthly-visits')">
+                                <i class="fas fa-download"></i> Export Monthly Trend
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning" onclick="exportAllData()">
+                                <i class="fas fa-file-excel"></i> Export All Data (Excel)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart configurations
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: false
+            }
+        }
+    };
+
+    // Initialize charts
+    let categoryChart, topPlacesChart, monthlyVisitsChart, ratingChart, visitorAnalyticsChart;
+
+    // Load Category Distribution Chart
+    fetch('{% url "places_by_category_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+
+    // Load Top Places Chart
+    fetch('{% url "top_places_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('topPlacesChart').getContext('2d');
+            topPlacesChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    plugins: {
+                        ...chartOptions.plugins,
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+
+    // Load Monthly Visits Chart
+    fetch('{% url "monthly_visits_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('monthlyVisitsChart').getContext('2d');
+            monthlyVisitsChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+
+    // Load Rating Distribution Chart
+    fetch('{% url "rating_distribution_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('ratingChart').getContext('2d');
+            ratingChart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: chartOptions
+            });
+        });
+
+    // Load Visitor Analytics Chart
+    fetch('{% url "visitor_analytics_api" %}')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('visitorAnalyticsChart').getContext('2d');
+            visitorAnalyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 3
+                        }
+                    }
+                }
+            });
+        });
+
+    // Export chart as image
+    function exportChart(chartId, filename) {
+        const chart = eval(chartId); // Get chart instance
+        const url = chart.toBase64Image();
+        const link = document.createElement('a');
+        link.download = filename + '.png';
+        link.href = url;
+        link.click();
+    }
+
+    // Export all data
+    function exportAllData() {
+        // This would typically trigger a server-side Excel generation
+        window.location.href = '{% url "export_analytics_excel" %}';
+    }
+
+    // Auto-refresh charts every 5 minutes
+    setInterval(() => {
+        location.reload();
+    }, 300000);
+</script>
+{% endblock %}

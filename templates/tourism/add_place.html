@@ -1,0 +1,313 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tambah Tempat Wisata{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-map-marker-alt"></i> Tambah Tempat Wisata Baru</h4>
+                </div>
+                <div class="card-body">
+
+                    <!-- Show message error -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Gagal menyimpan:</strong>
+                        <ul class="mb-0">
+                            {% for field in form %}
+                            {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <!-- Show message error -->
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nama Tempat *</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Kategori *</label>
+                                {{ form.category }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Deskripsi</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">No. Telepon</label>
+                                {{ form.phone }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Latitude *</label>
+                                {{ form.latitude }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Longitude *</label>
+                                {{ form.longitude }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Alamat</label>
+                                {{ form.address }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Foto</label>
+                                {{ form.image }}
+                            </div>
+                        </div>
+
+                        {# TAMBAHKAN BLOK BARU INI #}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_email" class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_website" class="form-label">Website</label>
+                                {{ form.website }}
+                            </div>
+                        </div>
+                        {# --- BATAS BLOK BARU --- #}
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Rating (1-5)</label>
+                                {{ form.rating }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="id_ticket_price" class="form-label">Harga Tiket</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    {{ form.ticket_price }}
+                                </div>
+                                {% if form.ticket_price.errors %}
+                                <div class="invalid-feedback d-block">{{ form.ticket_price.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">Ketik angka, format otomatis saat mengetik.</div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Jam Buka</label>
+                                {{ form.opening_hours }}
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <a href="{% url 'tourism_app:place_list' %}" class="btn btn-secondary me-2">Kembali</a>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+{% endblock %}
+
+{# templates/tourism/add_place.html #}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const original = document.getElementById('id_ticket_price');
+        if (!original) return;
+
+        // 1) Putus semua event lama dengan clone node
+        const input = original.cloneNode(true);
+        original.parentNode.replaceChild(input, original);
+
+        // 2) Formatter util
+        const nf = new Intl.NumberFormat('id-ID');
+        const onlyDigits = s => (s || '').replace(/\D/g, '');
+        const format = raw => raw ? nf.format(Number(raw)) : '';
+
+        const countDigitsLeft = (formatted, caret) =>
+            formatted.slice(0, caret).replace(/\D/g, '').length;
+
+        const caretFromDigits = (formatted, targetDigits) => {
+            let seen = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) seen++;
+                if (seen >= targetDigits) return i + 1;
+            }
+            return formatted.length;
+        };
+
+        // 3) Satu-satunya sumber input: keydown
+        input.addEventListener('keydown', function (e) {
+            const ctrlMeta = e.ctrlKey || e.metaKey;
+            const navKeys = ['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+            if (ctrlMeta || navKeys.includes(e.key)) return; // biarkan
+
+            const val = input.value;
+            const selStart = input.selectionStart ?? 0;
+            const selEnd = input.selectionEnd ?? selStart;
+            const hasSel = selStart !== selEnd;
+
+            const rawArr = onlyDigits(val).split('');
+            const dl = countDigitsLeft(val, selStart);
+            const dr = countDigitsLeft(val, selEnd);
+
+            const deleteRange = (a, b) => {
+                const x = Math.max(0, Math.min(a, rawArr.length));
+                const y = Math.max(0, Math.min(b, rawArr.length));
+                rawArr.splice(x, Math.max(0, y - x));
+                return x;
+            };
+            const insertAt = (idx, text) => {
+                const ins = (text || '').replace(/\D/g, '');
+                if (!ins) return idx;
+                rawArr.splice(idx, 0, ...ins.split(''));
+                return idx + ins.length;
+            };
+
+            // Blokir semua karakter selain digit dan perintah hapus
+            if (/^\d$/.test(e.key)) {
+                e.preventDefault();
+                let idx = hasSel ? deleteRange(dl, dr) : dl;
+                idx = insertAt(idx, e.key);
+                const newRaw = rawArr.join('');
+                const fmt = format(newRaw);
+                input.value = fmt;
+                const caret = caretFromDigits(fmt, idx);
+                requestAnimationFrame(() => input.setSelectionRange(caret, caret));
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                let idx;
+                if (hasSel) idx = deleteRange(dl, dr);
+                else idx = dl > 0 ? deleteRange(dl - 1, dl) : dl;
+                const newRaw = rawArr.join('');
+                const fmt = format(newRaw);
+                input.value = fmt;
+                const caret = caretFromDigits(fmt, idx);
+                requestAnimationFrame(() => input.setSelectionRange(caret, caret));
+            } else if (e.key === 'Delete') {
+                e.preventDefault();
+                let idx;
+                if (hasSel) idx = deleteRange(dl, dr);
+                else idx = deleteRange(dl, dl + 1);
+                const newRaw = rawArr.join('');
+                const fmt = format(newRaw);
+                input.value = fmt;
+                const caret = caretFromDigits(fmt, idx);
+                requestAnimationFrame(() => input.setSelectionRange(caret, caret));
+            } else {
+                // Cegah semua char 1-length non-digit agar tidak ada echo
+                if (e.key.length === 1) e.preventDefault();
+            }
+        });
+
+        // 4) Tangani paste
+        input.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const clip = (e.clipboardData && e.clipboardData.getData('text')) || '';
+            const val = input.value;
+            const selStart = input.selectionStart ?? 0;
+            const selEnd = input.selectionEnd ?? selStart;
+
+            const rawArr = onlyDigits(val).split('');
+            const dl = countDigitsLeft(val, selStart);
+            const dr = countDigitsLeft(val, selEnd);
+
+            const deleteRange = (a, b) => {
+                const x = Math.max(0, Math.min(a, rawArr.length));
+                const y = Math.max(0, Math.min(b, rawArr.length));
+                rawArr.splice(x, Math.max(0, y - x));
+                return x;
+            };
+            const insertAt = (idx, text) => {
+                const ins = (text || '').replace(/\D/g, '');
+                if (!ins) return idx;
+                rawArr.splice(idx, 0, ...ins.split(''));
+                return idx + ins.length;
+            };
+
+            let idx = deleteRange(dl, dr);
+            idx = insertAt(idx, clip);
+            const newRaw = rawArr.join('');
+            const fmt = format(newRaw);
+            input.value = fmt;
+            const caret = caretFromDigits(fmt, idx);
+            requestAnimationFrame(() => input.setSelectionRange(caret, caret));
+        });
+
+        // 5) Submit: kirim angka mentah
+        const form = input.closest('form');
+        if (form) {
+            form.addEventListener('submit', function () {
+                input.value = onlyDigits(input.value);
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ambil input phone berdasarkan id atau name (sesuaikan dengan output Django form)
+        const phoneInput = document.querySelector('input[name="phone"]');
+
+        if (phoneInput) {
+            // Event untuk mencegah input non-angka saat mengetik
+            phoneInput.addEventListener('keydown', function (event) {
+                // Izinkan: Backspace, Delete, Tab, Escape, Enter, Arrow keys
+                if ([8, 9, 13, 27, 37, 38, 39, 40, 46].includes(event.keyCode)) {
+                    return; // Biarkan tombol kontrol berfungsi
+                }
+
+                // Izinkan: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                if ((event.ctrlKey || event.metaKey) && [65, 67, 86, 88].includes(event.keyCode)) {
+                    return;
+                }
+
+                // Cegah input jika bukan angka (0-9)
+                if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+                    event.preventDefault();
+                }
+            });
+
+            // Event untuk membersihkan paste non-angka
+            phoneInput.addEventListener('input', function (event) {
+                this.value = this.value.replace(/[^0-9]/g, ''); // Hapus semua karakter selain angka
+            });
+        }
+    });
+</script>
+{% endblock %}

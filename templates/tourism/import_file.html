@@ -1,0 +1,127 @@
+<!-- templates/tourism/import_file.html -->
+{% extends 'base/base.html' %}
+
+{% block title %}Import Data Pariwisata{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-upload"></i> Import Data Tempat Pariwisata</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Instructions -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Petunjuk Import Data</h6>
+                        <ul class="mb-0">
+                            <li>Format file yang didukung: CSV, XLS, XLSX</li>
+                            <li>Ukuran maksimum: 10MB</li>
+                            <li>Kolom wajib: <strong>nama</strong>, <strong>latitude</strong>,
+                                <strong>longitude</strong>
+                            </li>
+                            <li>Kolom opsional: deskripsi, kategori, alamat, telepon, website, email, jam_buka,
+                                harga_tiket, rating</li>
+                        </ul>
+                        <hr class="my-2">
+                        <a href="{% url 'tourism_app:export_sample_template' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i> Download Template
+                        </a>
+                    </div>
+
+                    <!-- Upload Form -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.file.id_for_label }}" class="form-label">
+                                <strong>Pilih File</strong>
+                            </label>
+                            {{ form.file }}
+                            {% if form.file.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.file.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload dan Proses File
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Preview Section -->
+                    <div id="filePreview" class="mt-4" style="display: none;">
+                        <h6>Preview File:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm" id="previewTable">
+                                <!-- Content will be populated by JavaScript -->
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Add Form -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus"></i> Tambah Tempat Secara Manual</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Atau tambahkan tempat pariwisata satu per satu.</p>
+                    <a href="{% url 'tourism_app:add_place' %}" class="btn btn-outline-success">
+                        <i class="fas fa-plus-circle"></i> Tambah Tempat Baru
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('id_file').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Show file info
+            const fileInfo = `
+            <div class="alert alert-secondary">
+                <strong>File dipilih:</strong> ${file.name}<br>
+                <strong>Ukuran:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                <strong>Tipe:</strong> ${file.type || 'Unknown'}
+            </div>
+        `;
+
+            // Check if preview div exists, if not create it
+            let previewDiv = document.getElementById('selectedFileInfo');
+            if (!previewDiv) {
+                previewDiv = document.createElement('div');
+                previewDiv.id = 'selectedFileInfo';
+                previewDiv.className = 'mt-3';
+                e.target.parentNode.appendChild(previewDiv);
+            }
+
+            previewDiv.innerHTML = fileInfo;
+
+            // Basic file validation
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ['csv', 'xlsx', 'xls'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (file.size > maxSize) {
+                previewDiv.innerHTML += '<div class="alert alert-danger">Ukuran file terlalu besar (max 10MB)</div>';
+            } else if (!allowedTypes.includes(fileExtension)) {
+                previewDiv.innerHTML += '<div class="alert alert-danger">Format file tidak didukung</div>';
+            } else {
+                previewDiv.innerHTML += '<div class="alert alert-success">File siap untuk diupload</div>';
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -11,6 +11,7 @@ from django.contrib.gis.geos import Point
 from .models import TourismPlace, TourismCategory, DataImport
 from .forms import FileImportForm, TourismPlaceForm
 from django.urls import reverse_lazy
+from openpyxl.utils import get_column_letter
 
 import logging
 import csv
@@ -275,6 +276,22 @@ def export_places_xls(request):
             place.ticket_price if place.ticket_price else '',
             place.rating,
         ])
+
+    # === AUTO-FIT LEBAR KOLOM ===
+    for col in ws.columns:
+        max_length = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            try:
+                cell_value = str(cell.value)
+            except:
+                cell_value = ""
+            if cell_value:
+                max_length = max(max_length, len(cell_value))
+        # Tambah sedikit padding agar tidak terlalu rapat
+        adjusted_width = max_length + 2
+        ws.column_dimensions[col_letter].width = adjusted_width
+
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=daftar_tempat_wisata.xlsx'
     wb.save(response)

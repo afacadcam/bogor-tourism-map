@@ -1,0 +1,68 @@
+[
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 1,
+  "fields": {
+    "name": "Wisata Alam",
+    "description": "Tempat wisata yang menyuguhkan keindahan alam",
+    "icon": "tree",
+    "color": "#28a745",
+    "badge_color": "success"
+  }
+},
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 2,
+  "fields": {
+    "name": "Wisata Sejarah",
+    "description": "Tempat bersejarah dan landmark bersejarah",
+    "icon": "monument",
+    "color": "#6f42c1",
+    "badge_color": "info"
+  }
+},
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 3,
+  "fields": {
+    "name": "Wisata Kuliner",
+    "description": "Tempat makan dan kuliner khas Bogor",
+    "icon": "utensils",
+    "color": "#fd7e14",
+    "badge_color": "orange"
+  }
+},
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 4,
+  "fields": {
+    "name": "Wisata Belanja",
+    "description": "Pusat perbelanjaan dan oleh-oleh",
+    "icon": "shopping-bag",
+    "color": "#e83e8c",
+    "badge_color": "pink"
+  }
+},
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 5,
+  "fields": {
+    "name": "Wisata Edukasi",
+    "description": "Tempat wisata yang memberikan nilai edukasi",
+    "icon": "graduation-cap",
+    "color": "#20c997",
+    "badge_color": "purple"
+  }
+},
+{
+  "model": "tourism_app.tourismcategory",
+  "pk": 6,
+  "fields": {
+    "name": "Wisata Taman",
+    "description": "",
+    "icon": "map-pin",
+    "color": "#007bff",
+    "badge_color": "nature"
+  }
+}
+]

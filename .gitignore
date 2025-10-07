@@ -7,3 +7,5 @@ tourism_app/__pycache__/
 maps_app/__pycache__/
 analytics_app/__pycache__/
 tourism_app/__pycache__/
+
+media/*

@@ -14,6 +14,33 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
+    <style>
+        /* beri ruang bawah agar konten tidak ketutupan footer */
+        body {
+            padding-bottom: 48px;
+        }
+
+        /* sesuaikan dengan tinggi footer */
+        .app-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 34px;
+            /* tidak terlalu tinggi */
+            background: #02306b;
+            /* gelap agar kontras */
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            border-top: 1px solid rgba(255, 255, 255, .1);
+            z-index: 1030;
+            /* di atas konten biasa */
+        }
+    </style>
+
     {% block extra_css %}{% endblock %}
 
     <!-- Leaflet CSS -->
@@ -92,6 +119,8 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script> -->
 
     {% block extra_js %}{% endblock %}
+
+    <footer class="app-footer">©2025 Asep Python Web (Afa)</footer>
 </body>
 
 </html>

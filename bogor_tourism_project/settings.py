@@ -9,6 +9,17 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
+# ============================================================
+# SUB-PATH CONFIGURATION (untuk deploy di subdirectory)
+# ============================================================
+# Jika aplikasi diakses via sub-path seperti /python, set di .env
+# Contoh: SUB_PATH=/python atau kosongkan untuk root domain
+SUB_PATH = config('SUB_PATH', default='').rstrip('/')  # hapus trailing slash
+
+if SUB_PATH:
+    FORCE_SCRIPT_NAME = SUB_PATH
+    USE_X_FORWARDED_HOST = True
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,16 +89,25 @@ DATABASES = {
     }
 }
 
-# Static files configuration
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# ============================================================
+# STATIC FILES CONFIGURATION
+# ============================================================
+# Static URL akan otomatis berprefix SUB_PATH jika diset
+STATIC_URL = f'{SUB_PATH}/static/' if SUB_PATH else '/static/'
+# Path absolut folder static di server
+STATIC_ROOT = config('STATIC_ROOT', default=str(BASE_DIR / 'staticfiles'))
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Media files configuration
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# ============================================================
+# MEDIA FILES CONFIGURATION
+# ============================================================
+# Media URL akan otomatis berprefix SUB_PATH jika diset
+MEDIA_URL = f'{SUB_PATH}/media/' if SUB_PATH else '/media/'
+
+# Path absolut folder media di server
+MEDIA_ROOT = config('MEDIA_ROOT', default=str(BASE_DIR / 'media'))
 
 # Internationalization
 LANGUAGE_CODE = 'id'
@@ -101,3 +121,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # File upload settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+# ============================================================
+# SECURITY SETTINGS (Production)
+# ============================================================
+# if not DEBUG:
+#     SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+#     SESSION_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
+#     SECURE_BROWSER_XSS_FILTER = True
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
+#     X_FRAME_OPTIONS = 'DENY'
